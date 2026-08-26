@@ -1,12 +1,8 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
 
-# 1. Configuración de la API
+# 1. Configuración de la API (Tu llave nueva)
 GOOGLE_API_KEY = "AQ.Ab8RN6KE3fa_YKr" + "6wwkmMS2HrgrfluE8OJIjTejYcWROYrAOOA"
-genai.configure(api_key=GOOGLE_API_KEY)
-
-# IMPORTANTE: Usamos el modelo más moderno
-model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 2. El "Cerebro" Oculto
 contexto_militar = """
@@ -38,7 +34,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# 5. Lógica de respuesta directa
+# 5. Lógica de respuesta (CONEXIÓN DIRECTA A GOOGLE)
 if prompt := st.chat_input("Ej: Registrar salida del ID 123456, arma 045, Fusil Galil"):
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -46,12 +42,23 @@ if prompt := st.chat_input("Ej: Registrar salida del ID 123456, arma 045, Fusil 
 
     with st.chat_message("assistant"):
         try:
-            # Unimos el contexto militar y la pregunta en un solo texto a prueba de fallos
+            # Unimos el contexto militar y la pregunta
             instruccion_completa = contexto_militar + "\n\nComando del usuario:\n" + prompt
             
-            response = model.generate_content(instruccion_completa)
-            st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
+            # Llamada directa al servidor (Evita el error 404 de la librería)
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GOOGLE_API_KEY}"
+            payload = {"contents": [{"parts": [{"text": instruccion_completa}]}]}
+            
+            respuesta_bruta = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload)
+            
+            if respuesta_bruta.status_code == 200:
+                datos = respuesta_bruta.json()
+                texto_final = datos['candidates'][0]['content']['parts'][0]['text']
+                st.markdown(texto_final)
+                st.session_state.messages.append({"role": "assistant", "content": texto_final})
+            else:
+                st.error(f"Error de Google: {respuesta_bruta.status_code} - {respuesta_bruta.text}")
+                
         except Exception as e:
-            st.error("Error exacto devuelto por Google:")
+            st.error("Error del sistema:")
             st.error(e)
