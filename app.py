@@ -2,11 +2,11 @@ import streamlit as st
 import google.generativeai as genai
 
 # 1. Configuración de la API
-GOOGLE_API_KEY = "AQ.Ab8RN6JCMuDSqL" + "NvzqCqFFDdk-RQ7h3hzpDskuPcb_nrIctEQg"
+GOOGLE_API_KEY = "AQ.Ab8RN6KE3fa_YKr" + "6wwkmMS2HrgrfluE8OJIjTejYcWROYrAOOA"
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# IMPORTANTE: Usamos el modelo clásico sin parámetros conflictivos
-model = genai.GenerativeModel('gemini-pro')
+# IMPORTANTE: Usamos el modelo más moderno
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 2. El "Cerebro" Oculto
 contexto_militar = """
