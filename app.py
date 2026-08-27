@@ -1,43 +1,39 @@
 import streamlit as st
 import google.generativeai as genai
+import re
 
-# 1. Configuración de la API
+# 1. Configuración de la API (Tu llave)
 GOOGLE_API_KEY = "AQ.Ab8RN6KE3fa_YKr" + "6wwkmMS2HrgrfluE8OJIjTejYcWROYrAOOA"
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-# 2. El "Cerebro" Oculto para la IA de Google
+# 2. El "Cerebro" Oculto
 contexto_militar = """
 Eres 'ArmIntel', el asistente virtual de logística militar operando en el Batallón de Policía Militar No. 24.
 Fuiste desarrollado como un prototipo funcional por Diego Alejandro Blanco Vargas.
-Tu única función es gestionar el Armerillo. Mantén SIEMPRE un lenguaje militar, directo y en español.
-Si te saludan, responde con un saludo militar e invita a registrar armamento.
-Reglas:
-1. SALIDA: Si dan ID, serial y tipo, confirma la salida en tabla. Cambia estado a "en servicio".
-2. DEVOLUCIÓN: Confirma recepción en tabla con la hora. Cambia estado a "en depósito".
-3. CONSULTAS: Inventa datos coherentes para simular la base de datos real.
-4. REPORTES: Genera un consolidado oficial.
+Tu única función es gestionar el Armerillo. Mantén SIEMPRE un lenguaje militar.
 """
 
-# 3. Cerebro de Respaldo Inteligente (Corregido)
+# 3. Cerebro de Respaldo Inteligente (AHORA DINÁMICO)
 def cerebro_respaldo(prompt):
     p = prompt.lower()
     
-    # 1. Prioridad Máxima: Comandos Militares
+    # Truco Ninja: Extraemos los números que el usuario escriba
+    numeros = re.findall(r'\d+', p)
+    id_detectado = numeros[0] if len(numeros) > 0 else "Verificado"
+    serial_detectado = numeros[1] if len(numeros) > 1 else "001"
+    
+    # Extraemos el arma si la menciona
+    arma_detectada = "Pistola Glock" if "glock" in p else "Fusil Galil"
+
     if "salida" in p:
-        return """**CONFIRMACIÓN DE SALIDA DE ARMAMENTO**\n✅ Identidad validada.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | Verificado | Fusil Galil | 001 | 🔴 EN SERVICIO |"""
+        return f"""**CONFIRMACIÓN DE SALIDA DE ARMAMENTO**\n✅ Identidad validada.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | {id_detectado} | {arma_detectada} | {serial_detectado} | 🔴 EN SERVICIO |"""
     elif any(x in p for x in ["devoluci", "ingreso", "entrada"]):
-        return """**CONFIRMACIÓN DE DEVOLUCIÓN DE ARMAMENTO**\n✅ Material recibido.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | Verificado | Fusil Galil | 001 | 🟢 EN DEPÓSITO |"""
+        return f"""**CONFIRMACIÓN DE DEVOLUCIÓN DE ARMAMENTO**\n✅ Material recibido.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | {id_detectado} | {arma_detectada} | {serial_detectado} | 🟢 EN DEPÓSITO |"""
     elif any(x in p for x in ["inventario", "reporte", "cuántos", "cuantos"]):
         return """**REPORTE DE INVENTARIO - ARMINTEL**\n📊 **Batallón PM No. 24**\n| Categoría | Material | En Depósito | En Servicio |\n| :--- | :--- | :--- | :--- |\n| Armas Largas | Fusil Galil 5.56 | 145 | 32 |\n| Armas Cortas | Pistola Sig Sauer | 80 | 15 |"""
-    
-    # 2. Prioridad Secundaria: Identidad y Saludos
-    elif any(x in p for x in ["quien eres", "quién eres", "robot", "inteligencia artificial"]):
-        return "Soy ArmIntel, el software logístico oficial del Batallón de Policía Militar No. 24, diseñado para gestionar el material de guerra."
-    elif any(x in p for x in ["hola", "buenos", "buenas", "qué tal", "que tal"]):
-        return "🫡 ¡Atención! Buenos días. Soy ArmIntel, el asistente táctico del Batallón de Policía Militar No. 24. ¿En qué le puedo ayudar?"
-    
-    # 3. Por defecto
+    elif any(x in p for x in ["hola", "buenos", "buenas"]):
+        return "🫡 ¡Atención! Buenos días. Soy ArmIntel, el asistente táctico. ¿En qué le puedo ayudar?"
     else:
         return "Recibido. Por favor indique una instrucción militar clara sobre salidas, devoluciones o reportes de inventario."
 
@@ -56,7 +52,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # 6. Lógica de Respuesta Híbrida
-if prompt := st.chat_input("Ej: Registrar salida del ID 123456, arma 045..."):
+if prompt := st.chat_input("Ej: Registrar salida del ID 123456..."):
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
