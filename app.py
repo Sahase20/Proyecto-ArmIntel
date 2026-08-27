@@ -19,37 +19,21 @@ Reglas:
 4. REPORTES: Genera un consolidado oficial.
 """
 
-# 3. Cerebro de Respaldo Inteligente (Por si Google falla en la presentación)
+# 3. Cerebro de Respaldo Inteligente
 def cerebro_respaldo(prompt):
     p = prompt.lower()
-    if "hola" in p or "buenos días" in p or "buenas" in p or "qué tal" in p:
-        return "🫡 ¡Atención! Buenos días. Soy ArmIntel, el asistente táctico del Batallón de Policía Militar No. 24. ¿En qué le puedo ayudar con el registro de material de guerra hoy?"
-    elif "gracias" in p or "mejor" in p or "adios" in p or "hasta luego" in p:
-        return "¡Para servirle! Quedo atento en la guardia a cualquier otra novedad con el inventario. 🇨🇴"
+    if any(x in p for x in ["hola", "buenos", "buenas", "qué tal", "que tal"]):
+        return "🫡 ¡Atención! Buenos días. Soy ArmIntel, el asistente táctico del Batallón de Policía Militar No. 24. ¿En qué le puedo ayudar?"
+    elif any(x in p for x in ["ia", "quien eres", "quién eres", "robot", "inteligencia"]):
+        return "Soy ArmIntel, el software logístico oficial del Batallón de Policía Militar No. 24, diseñado para gestionar el material de guerra."
     elif "salida" in p:
-        return """**CONFIRMACIÓN DE SALIDA DE ARMAMENTO**
-✅ El sistema ha validado la identidad y disponibilidad del material.
-| Fecha y Hora | ID Funcionario | Tipo de Arma | Serial | Estado Actual |
-| :--- | :--- | :--- | :--- | :--- |
-| Automática | Verificado | Fusil Galil | 001 | 🔴 EN SERVICIO |
-*El arma ha sido asignada. Inventario actualizado.*"""
-    elif "devoluci" in p or "ingreso" in p:
-        return """**CONFIRMACIÓN DE DEVOLUCIÓN DE ARMAMENTO**
-✅ El material ha sido recibido y verificado correctamente.
-| Fecha y Hora | ID Funcionario | Tipo de Arma | Serial | Estado Actual |
-| :--- | :--- | :--- | :--- | :--- |
-| Automática | Verificado | Fusil Galil | 001 | 🟢 EN DEPÓSITO |
-*El arma ha regresado a la armería central. Novedades: Ninguna.*"""
-    elif "inventario" in p or "reporte" in p:
-        return """**REPORTE DE INVENTARIO - ARMINTEL**
-📊 **Batallón de Policía Militar No. 24**
-| Categoría | Material | En Depósito | En Servicio |
-| :--- | :--- | :--- | :--- |
-| Armas Largas | Fusil Galil 5.56 | 145 | 32 |
-| Armas Cortas | Pistola Sig Sauer | 80 | 15 |
-*Sistemas operando con normalidad. Sin alertas de seguridad.*"""
+        return """**CONFIRMACIÓN DE SALIDA DE ARMAMENTO**\n✅ Identidad validada.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | Verificado | Fusil Galil | 001 | 🔴 EN SERVICIO |"""
+    elif any(x in p for x in ["devoluci", "ingreso", "entrada"]):
+        return """**CONFIRMACIÓN DE DEVOLUCIÓN DE ARMAMENTO**\n✅ Material recibido.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | Verificado | Fusil Galil | 001 | 🟢 EN DEPÓSITO |"""
+    elif any(x in p for x in ["inventario", "reporte", "cuántos", "cuantos"]):
+        return """**REPORTE DE INVENTARIO - ARMINTEL**\n📊 **Batallón PM No. 24**\n| Categoría | Material | En Depósito | En Servicio |\n| :--- | :--- | :--- | :--- |\n| Armas Largas | Fusil Galil 5.56 | 145 | 32 |\n| Armas Cortas | Pistola Sig Sauer | 80 | 15 |"""
     else:
-        return "Recibido. Sin embargo, para mantener la seguridad del sistema, por favor indíqueme una instrucción militar clara sobre salidas, devoluciones o reporte de inventario."
+        return "Recibido. Por favor indique una instrucción militar clara sobre salidas, devoluciones o reportes de inventario."
 
 # 4. Diseño de la página
 st.set_page_config(page_title="ArmIntel - Fase 2", page_icon="🛡️", layout="centered")
