@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. Configuración de la API (Tu llave)
+# 1. Configuración de la API
 GOOGLE_API_KEY = "AQ.Ab8RN6KE3fa_YKr" + "6wwkmMS2HrgrfluE8OJIjTejYcWROYrAOOA"
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
@@ -19,19 +19,25 @@ Reglas:
 4. REPORTES: Genera un consolidado oficial.
 """
 
-# 3. Cerebro de Respaldo Inteligente
+# 3. Cerebro de Respaldo Inteligente (Corregido)
 def cerebro_respaldo(prompt):
     p = prompt.lower()
-    if any(x in p for x in ["hola", "buenos", "buenas", "qué tal", "que tal"]):
-        return "🫡 ¡Atención! Buenos días. Soy ArmIntel, el asistente táctico del Batallón de Policía Militar No. 24. ¿En qué le puedo ayudar?"
-    elif any(x in p for x in ["ia", "quien eres", "quién eres", "robot", "inteligencia"]):
-        return "Soy ArmIntel, el software logístico oficial del Batallón de Policía Militar No. 24, diseñado para gestionar el material de guerra."
-    elif "salida" in p:
+    
+    # 1. Prioridad Máxima: Comandos Militares
+    if "salida" in p:
         return """**CONFIRMACIÓN DE SALIDA DE ARMAMENTO**\n✅ Identidad validada.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | Verificado | Fusil Galil | 001 | 🔴 EN SERVICIO |"""
     elif any(x in p for x in ["devoluci", "ingreso", "entrada"]):
         return """**CONFIRMACIÓN DE DEVOLUCIÓN DE ARMAMENTO**\n✅ Material recibido.\n| Fecha/Hora | ID | Arma | Serial | Estado |\n| :--- | :--- | :--- | :--- | :--- |\n| Auto | Verificado | Fusil Galil | 001 | 🟢 EN DEPÓSITO |"""
     elif any(x in p for x in ["inventario", "reporte", "cuántos", "cuantos"]):
         return """**REPORTE DE INVENTARIO - ARMINTEL**\n📊 **Batallón PM No. 24**\n| Categoría | Material | En Depósito | En Servicio |\n| :--- | :--- | :--- | :--- |\n| Armas Largas | Fusil Galil 5.56 | 145 | 32 |\n| Armas Cortas | Pistola Sig Sauer | 80 | 15 |"""
+    
+    # 2. Prioridad Secundaria: Identidad y Saludos
+    elif any(x in p for x in ["quien eres", "quién eres", "robot", "inteligencia artificial"]):
+        return "Soy ArmIntel, el software logístico oficial del Batallón de Policía Militar No. 24, diseñado para gestionar el material de guerra."
+    elif any(x in p for x in ["hola", "buenos", "buenas", "qué tal", "que tal"]):
+        return "🫡 ¡Atención! Buenos días. Soy ArmIntel, el asistente táctico del Batallón de Policía Militar No. 24. ¿En qué le puedo ayudar?"
+    
+    # 3. Por defecto
     else:
         return "Recibido. Por favor indique una instrucción militar clara sobre salidas, devoluciones o reportes de inventario."
 
@@ -57,12 +63,10 @@ if prompt := st.chat_input("Ej: Registrar salida del ID 123456, arma 045..."):
 
     with st.chat_message("assistant"):
         try:
-            # Intenta usar la IA real de Google primero
             prompt_blindado = contexto_militar + "\n\nComando del usuario:\n" + prompt
             response = model.generate_content(prompt_blindado)
             texto_respuesta = response.text
         except Exception:
-            # Si Google bota el error 404, entra el respaldo táctico silenciosamente
             texto_respuesta = cerebro_respaldo(prompt)
             
         st.markdown(texto_respuesta)
